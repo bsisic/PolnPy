@@ -127,7 +127,9 @@ class PolenController
                 'name' => $polen->getName(),
                 'isPredictive' => $polen->getPredictive(),
                 'range' => $range,
-                'history' => $history
+                'history' => $history,
+                'warning' => $polen->getWarning(),
+                'alert' => $polen->getAlert()
             ];
         }
         
