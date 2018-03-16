@@ -1,0 +1,15 @@
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+
+history:
+    path: /history
+    controller: polen_controller:history
+
+list:
+    path: /list
+    controller: polen_controller:listPolens
+
+insert:
+    path: /insert
+    controller: polen_controller:insertData
