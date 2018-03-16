@@ -5,11 +5,20 @@
 history:
     path: /history
     controller: polen_controller:history
+    methods: ['GET']
 
 list:
     path: /list
     controller: polen_controller:listPolens
+    methods: ['GET']
 
 insert:
     path: /insert
     controller: polen_controller:insertData
+    methods: ['POST']
+
+updateLevel:
+    path: /level/update
+    controller: polen_controller:updateLevel
+    methods: ['POST']
+    

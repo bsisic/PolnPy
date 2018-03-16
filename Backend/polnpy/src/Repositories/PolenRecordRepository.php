@@ -21,5 +21,18 @@ class PolenRecordRepository extends DocumentRepository
         
         return $qb->getQuery()->execute();
     }
+    
+    public function findInfoForPolen(PolenDocument $polen)
+    {
+        $qb = $this->createAggregationBuilder()
+            ->match()
+                ->field('polen')->equals($polen)
+            ->group()
+                ->field('_id')->expression('null')
+                ->field('max')->max('$recordDate')
+                ->field('min')->min('$recordDate');
+        
+        return $qb->execute()->getSingleResult();
+    }
 }
 

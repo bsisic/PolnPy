@@ -23,6 +23,7 @@ services:
         class: App\Controller\PolenController
         arguments:
             - "@doctrine_mongodb"
+            - "@logger"
         public: true
 
     # add more service definitions when explicit configuration is needed

@@ -25,6 +25,16 @@ class PolenDocument
     private $predictive = false;
     
     /**
+     * @Mongo\Field(type="int")
+     */
+    private $warning = 2;
+    
+    /**
+     * @Mongo\Field(type="int")
+     */
+    private $alert = 6;
+    
+    /**
      * @return mixed
      */
     public function getId()
@@ -62,6 +72,38 @@ class PolenDocument
     public function setPredictive($predictive)
     {
         $this->predictive = $predictive;
+    }
+    
+    /**
+     * @return number
+     */
+    public function getWarning()
+    {
+        return $this->warning;
+    }
+
+    /**
+     * @return number
+     */
+    public function getAlert()
+    {
+        return $this->alert;
+    }
+
+    /**
+     * @param number $warning
+     */
+    public function setWarning($warning)
+    {
+        $this->warning = $warning;
+    }
+
+    /**
+     * @param number $alert
+     */
+    public function setAlert($alert)
+    {
+        $this->alert = $alert;
     }
 }
 
