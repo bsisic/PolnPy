@@ -50,6 +50,9 @@
     "monolog/monolog": {
         "version": "1.23.0"
     },
+    "paragonie/random_compat": {
+        "version": "v2.0.11"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },
@@ -61,6 +64,9 @@
     },
     "psr/simple-cache": {
         "version": "1.0.1"
+    },
+    "ramsey/uuid": {
+        "version": "3.7.3"
     },
     "symfony/cache": {
         "version": "v4.0.6"
