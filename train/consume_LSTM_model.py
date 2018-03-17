@@ -37,8 +37,8 @@ def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
 
 def run(args):
     # Get the weather forecast for today in CSV (SHOULD BE VIA API)
-    data_for_predict = read_csv(args.todayweather)
-    data_for_predict = data_for_predict[['Date','Alnus','DayOfYear','TempMax','HumidMin','VisibilityAvg']]
+    data_for_predict = read_csv('weather_today_for_LSTM.csv')
+    data_for_predict = data_for_predict[['Date',args.pollentype,'DayOfYear','TempMax','HumidMin','VisibilityAvg']]
     data_for_predict.set_index('Date',inplace=True)
 
     n_days = 7
@@ -57,12 +57,12 @@ def run(args):
     to_predict_X = to_predict_X.reshape((to_predict_X.shape[0], n_days, n_features))
 
     # load json and create model
-    json_file = open(args.modeljson, 'r')
+    json_file = open('model_'+args.pollentype+'.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
     # load weights into new model
-    loaded_model.load_weights(args.model)
+    loaded_model.load_weights('LSTM_model_'+args.pollentype+'.h5')
 
     # make a prediction
     result = loaded_model.predict(to_predict_X)
@@ -71,9 +71,7 @@ def run(args):
 
 def main():
 	parser=argparse.ArgumentParser(description="Return pollen concentration prediction")
-	parser.add_argument("-model",help="model filename" ,dest="model", type=str, required=True)
-	parser.add_argument("-modeljson",help="model json filename" ,dest="modeljson", type=str, required=True)
-	parser.add_argument("-todayweather",help="today weather filename" ,dest="todayweather", type=str, required=True)
+	parser.add_argument("-pollentype",help="type of pollen" ,dest="pollentype", type=str, required=True)
 	parser.set_defaults(func=run)
 	args=parser.parse_args()
 	args.func(args)
