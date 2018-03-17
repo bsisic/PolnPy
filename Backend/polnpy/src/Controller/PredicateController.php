@@ -23,7 +23,7 @@ class PredicateController
         $this->registry = $manager;
         $this->logger = $logger;
     }
-    
+
     /**
      * @SWG\Get(
      *  summary="Get prediction for pollen concentration",

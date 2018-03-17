@@ -196,30 +196,22 @@ class PolenController
     public function listPolens(Request $request)
     {
         $polenList = $this->registry->getRepository(PolenDocument::class)->findAll();
-        
-        if ($request->query->has('predicate') && (bool)$request->query->get('predicate')) {
-            $polenList = array_filter($polenList, function(PolenDocument $pollen){
-                if ($pollen->getPredictive()) {
-                    return $pollen;
-                }
-                return false;
-            });
-            
-            $polenList = array_filter($polenList);
-        }
+        $infos = $this->registry->getRepository(PolenRecord::class)->findInfoForPolen();
 
         $result = [];
         foreach ($polenList as $polen) {
-            $info = $this->registry->getRepository(PolenRecord::class)->findInfoForPolen($polen);
+            if ($request->query->has('predicate') && (bool)$request->query->get('predicate') && !$polen->getPredictive()) {
+                continue;
+            }
             $range = [];
             $history = false;
             
-            if ($info) {
+            if (isset($infos[$polen->getId()])) {
                 $range = [
-                    'min' => $info['max']->toDateTime(),
-                    'max' => $info['max']->toDateTime(),
-                    'max-concentration' => $info['max-concentration'],
-                    'min-concentration' => $info['min-concentration']
+                    'min' => $infos[$polen->getId()]['max']->toDateTime(),
+                    'max' => $infos[$polen->getId()]['max']->toDateTime(),
+                    'max-concentration' => $infos[$polen->getId()]['max-concentration'],
+                    'min-concentration' => $infos[$polen->getId()]['min-concentration']
                 ];
                 $history = true;
             }

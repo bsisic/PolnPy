@@ -11,7 +11,7 @@ volumes:
     mongo_data:
 
 services:
-    chronos:
+    polnpy_api:
         build: ../image/php7.2-apache-dev
         env_file: 
             - ../polnpy/.env

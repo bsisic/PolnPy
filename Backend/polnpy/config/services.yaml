@@ -41,6 +41,11 @@ services:
         class: App\Command\DBLoaderCommand
         tags:
             - { name: 'console.command', command: 'app:db:load' }
+
+    db_dump_command:
+        class: App\Command\DBDumperCommand
+        tags:
+            - { name: 'console.command', command: 'app:db:dump' }
     
     create_user_command:
         class: App\Command\UserCreationCommand
