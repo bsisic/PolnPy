@@ -17,7 +17,7 @@ class Dashboard extends Component {
         this.state = {
             value: false,
             date: new Date(),
-            histo_pollen: 0,
+            histo_pollen: {},
             predict: {}
         }
         this.getHisto = this.getHisto.bind(this);
@@ -59,7 +59,7 @@ class Dashboard extends Component {
                     />
                 </div>
                 <div className="col histo">
-                <h4 style={{display:'inline-block'}}>History&</h4><h4 style={{color:'#F5A623',display:'inline-block'}}>Prediction</h4>
+                <h5 style={{display:'inline-block'}}>History&</h5><h5 style={{color:'#F5A623',display:'inline-block'}}>Prediction</h5>
                     <XYPlot
                       xType="ordinal"
                       width={500}
@@ -78,7 +78,7 @@ class Dashboard extends Component {
                         color="#141414"/>
                       <VerticalBarSeriesCanvas
                         data={[
-                            {x: 'Betula', y: 6}
+                            {x: 'Betula', y: this.state.predict.concentration}
                         ]}
                         color="#F5A623"/>
                     </XYPlot>
@@ -94,7 +94,7 @@ class Dashboard extends Component {
                         colorTwo={ [250, 150, 30] }
                       />
                       <div className="card-body">
-                        <h4 className="card-title">Betula Map</h4>
+                        <h4 className="card-title">{this.state.predict.pollen} Map</h4>
                         <p style={{display:'inline-block',marginLeft:'10px',color:'green'}}>normal</p>
                         <p style={{display:'inline-block',marginLeft:'10px',color:'orange'}}>warning</p>
                         <p style={{display:'inline-block',marginLeft:'10px',color:'red'}}>alert</p>
