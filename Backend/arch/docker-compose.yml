@@ -1,0 +1,37 @@
+version: "3"
+
+networks:
+    public:
+        driver: bridge
+    internal:
+        driver: bridge
+        internal: true
+
+volumes:
+    mongo_data:
+
+services:
+    chronos:
+        build: ../image/php7.2-apache-dev
+        env_file: 
+            - ../polnpy/.env
+        ports:
+            - 80:80
+        networks:
+            - internal
+            - public
+        environment:
+            - APP_ENV=1
+            - APP_DEBUG=1
+        volumes:
+            - ../tools/composer:/composer
+            - ../polnpy:/var/www/html
+        depends_on:
+            - mongo
+    
+    mongo:
+        image: mongo
+        networks:
+            - internal
+        volumes:
+            - mongo_data:/data/db
