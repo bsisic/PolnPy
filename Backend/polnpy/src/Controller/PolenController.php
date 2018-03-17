@@ -228,7 +228,7 @@ class PolenController
             
             if (isset($infos[$polen->getId()])) {
                 $range = [
-                    'min' => $infos[$polen->getId()]['max']->toDateTime(),
+                    'min' => $infos[$polen->getId()]['min']->toDateTime(),
                     'max' => $infos[$polen->getId()]['max']->toDateTime(),
                     'max-concentration' => $infos[$polen->getId()]['max-concentration'],
                     'min-concentration' => $infos[$polen->getId()]['min-concentration']

@@ -11,10 +11,16 @@ volumes:
     mongo_data:
 
 services:
+#    polnpy_front:
+#        image: apache
+#        ports:
+#            - 80:80
+
     polnpy_api:
         image: matthieu88160/polnpy
+        # build: ../../image/php7.2-apache
         ports:
-            - 80:80
+            - 81:80
         networks:
             - internal
             - public
