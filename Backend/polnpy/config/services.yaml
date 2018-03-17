@@ -21,6 +21,7 @@ services:
         arguments:
             - "@doctrine_mongodb"
             - "@logger"
+            - "@app.cache.pool"
         public: true
         
     history_controller:

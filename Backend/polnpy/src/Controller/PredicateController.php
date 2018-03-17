@@ -76,11 +76,15 @@ class PredicateController
             return new CrossJsonResponse(['message' => 'Error occured'], 500);
         }
         
+        $lines = explode("\n", $process->getOutput());
+        
+        while (count($lines) > 0 && !is_numeric($result = array_pop($lines)));
+        
         return new CrossJsonResponse(
             [
                 'pollen_id' => $pollen->getId(),
                 'pollen' => $pollen->getName(),
-                'concentration' => (float)$process->getOutput()
+                'concentration' => (float)$result
             ]
         );
     }

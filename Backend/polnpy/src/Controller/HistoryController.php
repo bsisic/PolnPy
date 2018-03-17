@@ -8,6 +8,7 @@ use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
 use Monolog\Logger;
 use App\Response\CrossJsonResponse;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class HistoryController
 {
@@ -18,10 +19,13 @@ class HistoryController
      */
     private $logger;
     
-    public function __construct(ManagerRegistry $manager, Logger $logger)
+    private $cache;
+    
+    public function __construct(ManagerRegistry $manager, Logger $logger, AdapterInterface $cache)
     {
         $this->registry = $manager;
         $this->logger = $logger;
+        $this->cache = $cache;
     }
     
     /**
@@ -45,6 +49,14 @@ class HistoryController
     public function dateOverview(Request $request)
     {
         $date = $request->query->get('date', date('Y-m-d'));
+        
+        $cacheKey = 'polen.date.overview' . $date;
+        $cache = $this->cache->getItem($cacheKey);
+        
+        if ($cache->isHit()) {
+            return new CrossJsonResponse($cache->get());
+        }
+        
         $startDateTime = \DateTime::createFromFormat('Y-m-d', $date);
         $startDateTime->setTime(0, 0, 0, 0);
         
@@ -61,6 +73,20 @@ class HistoryController
                 'polenId' => $record->getPolen()->getId()
             ];
         }
+        
+        $keyStore = $this->cache->getItem('date_overview');
+        $data = $keyStore->get();
+        if (!is_array($data)) {
+            $data = [];
+        }
+        $data[] = $cacheKey;
+        $keyStore->set($data);
+        $cache->expiresAfter(86400);
+        $this->cache->save($keyStore);
+        
+        $cache->set($results);
+        $cache->expiresAfter(3600);
+        $this->cache->save($cache);
         
         return new CrossJsonResponse($results, 200);
     }
@@ -109,6 +135,14 @@ class HistoryController
         }
         
         $type = $request->query->get('type');
+        
+        $cacheKey = 'polen.history.' . $type;
+        $cache = $this->cache->getItem($cacheKey);
+        
+        if ($cache->isHit()) {
+            return new CrossJsonResponse($cache->get());
+        }
+        
         $polen = $this->registry->getRepository(PolenDocument::class)->find($type);
         
         if (!$polen) {
@@ -146,6 +180,10 @@ class HistoryController
                 'date' => $record->getRecordDate()
             ];
         }
+        
+        $cache->set($results);
+        $cache->expiresAfter(3600);
+        $this->cache->save($cache);
         
         return new CrossJsonResponse($results);
     }
