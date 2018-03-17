@@ -33,3 +33,14 @@ RUN echo "zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-201707
 WORKDIR /var/www/html
 
 RUN useradd -p dl -s /bin/bash user
+
+RUN apt-get install -y python3 python3-pip
+RUN pip3 install pandas scikit-learn scipy numpy
+
+RUN mkdir /usr/local/src/predict
+COPY Archive.zip /usr/local/src/predict/
+WORKDIR /usr/local/src/predict
+RUN unzip Archive.zip
+RUN rm Archive.zip
+
+WORKDIR /var/www/html

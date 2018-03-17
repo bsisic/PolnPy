@@ -176,6 +176,9 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.7.0"
     },
+    "symfony/process": {
+        "version": "v4.0.6"
+    },
     "symfony/property-access": {
         "version": "v4.0.6"
     },

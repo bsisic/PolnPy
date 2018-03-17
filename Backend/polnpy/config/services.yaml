@@ -30,6 +30,13 @@ services:
             - "@logger"
         public: true
     
+    prediction_controller:
+        class: App\Controller\PredicateController
+        arguments:
+            - "@doctrine_mongodb"
+            - "@logger"
+        public: true
+    
     create_user_command:
         class: App\Command\UserCreationCommand
         calls:

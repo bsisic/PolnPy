@@ -18,11 +18,16 @@ insert:
     methods: ['POST', 'OPTIONS']
 
 updateLevel:
-    path: /level/update
+    path: /update
     controller: polen_controller:updateLevel
     methods: ['POST', 'OPTIONS']
 
 date_overview:
     path: /date/overview
-    controller: polen_controller:dateOverview
+    controller: history_controller:dateOverview
+    methods: ['GET', 'OPTIONS']
+
+predict:
+    path: /predict
+    controller: prediction_controller:predict
     methods: ['GET', 'OPTIONS']

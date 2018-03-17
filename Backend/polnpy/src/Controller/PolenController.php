@@ -24,47 +24,6 @@ class PolenController
         $this->registry = $manager;
         $this->logger = $logger;
     }
-    
-    /**
-     * @SWG\Get(
-     *  summary="Get each pollen concentration in a day",
-     *  produces={"application/json"},
-     *  @SWG\Response(
-     *      response=200,
-     *      description="Returns the set of pollen concentration for specified date"
-     *  ),
-     *  @SWG\Parameter(
-     *      required=true,
-     *      name="date",
-     *      in="query",
-     *      type="string",
-     *      description="The data starting date in format YYYY-MM-DD"
-     *  )
-     * )
-     * @return \App\Response\CrossJsonResponse
-     */
-    public function dateOverview(Request $request)
-    {
-        $date = $request->query->get('date', date('Y-m-d'));
-        $startDateTime = \DateTime::createFromFormat('Y-m-d', $date);
-        $startDateTime->setTime(0, 0, 0, 0);
-        
-        $endDateTime = \DateTime::createFromFormat('Y-m-d', $date);
-        $endDateTime->setTime(23, 59, 59, 999);
-        
-        $records = $this->registry->getManager()->getRepository(PolenRecord::class)->findInRange($startDateTime, $endDateTime);
-        
-        $results = [];
-        foreach ($records as $record) {
-            $results[] = [
-                'concentration' => $record->getConcentration(),
-                'polen' => $record->getPolen()->getName(),
-                'polenId' => $record->getPolen()->getId()
-            ];
-        }
-        
-        return new CrossJsonResponse($results, 200);
-    }
  
     /**
      * @SWG\Post(
@@ -109,6 +68,14 @@ class PolenController
      *      in="query",
      *      type="integer",
      *      description="The pollen image url"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=false,
+     *      name="predicate_args",
+     *      in="query",
+     *      type="array",
+     *      items={"string"},
+     *      description="The pollen image url"
      *  )
      * )
      * @return \App\Response\CrossJsonResponse
@@ -152,6 +119,9 @@ class PolenController
             if (array_key_exists('image', $data)) {
                 $polen->setImageUrl((string)$data['image']);
             }
+            if (array_key_exists('predicate_args', $data)) {
+                $polen->setPredictionArguments($data['predicate_args']);
+            }
             
             $result[] = [
                 'id' => $polen->getId(),
@@ -159,7 +129,8 @@ class PolenController
                 'isPredictive' => $polen->getPredictive(),
                 'warning' => $polen->getWarning(),
                 'alert' => $polen->getAlert(),
-                'image' => $polen->getImageUrl()
+                'image' => $polen->getImageUrl(),
+                'predicate_args' => $polen->getPredictionArguments()
             ];
         }
         

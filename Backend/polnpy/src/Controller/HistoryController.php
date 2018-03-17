@@ -26,6 +26,47 @@ class HistoryController
     
     /**
      * @SWG\Get(
+     *  summary="Get each pollen concentration in a day",
+     *  produces={"application/json"},
+     *  @SWG\Response(
+     *      response=200,
+     *      description="Returns the set of pollen concentration for specified date"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=true,
+     *      name="date",
+     *      in="query",
+     *      type="string",
+     *      description="The data starting date in format YYYY-MM-DD"
+     *  )
+     * )
+     * @return \App\Response\CrossJsonResponse
+     */
+    public function dateOverview(Request $request)
+    {
+        $date = $request->query->get('date', date('Y-m-d'));
+        $startDateTime = \DateTime::createFromFormat('Y-m-d', $date);
+        $startDateTime->setTime(0, 0, 0, 0);
+        
+        $endDateTime = \DateTime::createFromFormat('Y-m-d', $date);
+        $endDateTime->setTime(23, 59, 59, 999);
+        
+        $records = $this->registry->getManager()->getRepository(PolenRecord::class)->findInRange($startDateTime, $endDateTime);
+        
+        $results = [];
+        foreach ($records as $record) {
+            $results[] = [
+                'concentration' => $record->getConcentration(),
+                'polen' => $record->getPolen()->getName(),
+                'polenId' => $record->getPolen()->getId()
+            ];
+        }
+        
+        return new CrossJsonResponse($results, 200);
+    }
+    
+    /**
+     * @SWG\Get(
      *  summary="Get history of pollen concentration",
      *  produces={"application/json"},
      *  @SWG\Response(
