@@ -1,8 +1,9 @@
 .DS_Store
-READMEhelper
-analyze/
-expose/
-wrangle/*.json
-*/*.csv
+READMEhelper.md
 scrap/*.csv
+wrangle/*.json
+analyze/PlayGround.*
+analyze/*.csv
+expose/
+*/*.csv
 */.ipynb*
