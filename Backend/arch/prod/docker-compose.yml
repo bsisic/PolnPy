@@ -12,7 +12,7 @@ volumes:
 
 services:
     polnpy_api:
-        build: ../../image/php7.2-apache
+        image: matthieu88160/polnpy
         ports:
             - 80:80
         networks:
