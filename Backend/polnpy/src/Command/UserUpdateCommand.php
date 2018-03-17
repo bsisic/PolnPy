@@ -7,7 +7,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
 use App\Document\User;
 
-class UserListCommand extends Command
+class UserUpdateCommand extends Command
 {
     private $registry;
     
@@ -18,16 +18,20 @@ class UserListCommand extends Command
     
     protected function configure()
     {
-        $this->setName('app:list:user');
+        $this->setName('app:update:user')
+            ->addArgument('userId')
+            ->addArgument('role');
     }
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $users = $this->registry->getManager()->getRepository(User::class)->findAll();
-    
-        foreach ($users as $user) {
-            $output->writeln(sprintf('%s: %s [%s]', $user->getId(), $user->getKey(), implode(', ', $user->getRoles())));
-        }
+        $user = $this->registry->getManager()->getRepository(User::class)->find($input->getArgument('userId'));
+        
+        $roles = $user->getRoles();
+        array_push($roles, $input->getArgument('role'));
+        $user->setRoles($roles);
+
+        $this->registry->getManager()->flush();
     }
 }
 

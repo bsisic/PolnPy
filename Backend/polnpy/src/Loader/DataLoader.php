@@ -63,10 +63,13 @@ class DataLoader
                     throw new \Exception('date key is required inside data', 400);
                 }
                 
+                $recordDate = \DateTime::createFromFormat('Y-m-d', $dataPoint['date']);
+                $this->logger->debug('Loading record');
+                
                 $polenRecord = new PolenRecord();
                 $polenRecord->setPolen($polenList[$polenName]);
                 $polenRecord->setConcentration($dataPoint['value']);
-                $polenRecord->setRecordDate(\DateTime::createFromFormat('Y-m-d', $dataPoint['date']));
+                $polenRecord->setRecordDate($recordDate);
                 
                 $this->logger->debug('Persisting new record', ['key' => $key, 'datapoint' => $dataPointKey]);
                 $this->registry->getManager()->persist($polenRecord);

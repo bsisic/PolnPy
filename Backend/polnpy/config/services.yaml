@@ -22,6 +22,13 @@ services:
             - "@doctrine_mongodb"
             - "@logger"
         public: true
+        
+    history_controller:
+        class: App\Controller\HistoryController
+        arguments:
+            - "@doctrine_mongodb"
+            - "@logger"
+        public: true
     
     create_user_command:
         class: App\Command\UserCreationCommand
@@ -43,7 +50,21 @@ services:
             - ["setRegistry", ["@doctrine_mongodb"]]
         tags:
             - { name: 'console.command', command: 'app:delete:user' }
+
+    update_user_command:
+        class: App\Command\UserUpdateCommand
+        calls:
+            - ["setRegistry", ["@doctrine_mongodb"]]
+        tags:
+            - { name: 'console.command', command: 'app:update:user' }
+            
+    user_provider:
+        class: App\Security\ApiKeyUserProvider
+        arguments:
+            - "@doctrine_mongodb"
         
+    pre_auth:
+        class: App\Security\ApiKeyAuthenticator
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

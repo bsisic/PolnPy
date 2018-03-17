@@ -35,6 +35,11 @@ class PolenDocument
     private $alert = 6;
     
     /**
+     * @Mongo\Field(type="string")
+     */
+    private $imageUrl = '';
+    
+    /**
      * @return mixed
      */
     public function getId()
@@ -104,6 +109,22 @@ class PolenDocument
     public function setAlert($alert)
     {
         $this->alert = $alert;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getImageUrl()
+    {
+        return $this->imageUrl;
+    }
+
+    /**
+     * @param string $imageUrl
+     */
+    public function setImageUrl($imageUrl)
+    {
+        $this->imageUrl = $imageUrl;
     }
 }
 

@@ -3,11 +3,11 @@ namespace App\Controller;
 
 use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Document\PolenRecord;
 use App\Document\PolenDocument;
 use App\Loader\DataLoader;
 use Monolog\Logger;
+use App\Response\CrossJsonResponse;
 
 class PolenController
 {
@@ -24,13 +24,36 @@ class PolenController
         $this->logger = $logger;
     }
     
+    public function dateOverview(Request $request)
+    {
+        $date = $request->query->get('date', date('Y-m-d'));
+        $startDateTime = \DateTime::createFromFormat('Y-m-d', $date);
+        $startDateTime->setTime(0, 0, 0, 0);
+        
+        $endDateTime = \DateTime::createFromFormat('Y-m-d', $date);
+        $endDateTime->setTime(23, 59, 59, 999);
+        
+        $records = $this->registry->getManager()->getRepository(PolenRecord::class)->findInRange($startDateTime, $endDateTime);
+        
+        $results = [];
+        foreach ($records as $record) {
+            $results[] = [
+                'concentration' => $record->getConcentration(),
+                'polen' => $record->getPolen()->getName(),
+                'polenId' => $record->getPolen()->getId()
+            ];
+        }
+        
+        return new CrossJsonResponse($results, 200);
+    }
+ 
     public function updateLevel(Request $request)
     {
         $this->logger->debug('Starting update level');
         
         $datas = json_decode($request->getContent(), true);
         if (!$datas) {
-            return new JsonResponse(
+            return new CrossJsonResponse(
                 [
                     'message' => 'The data must follow the json format : [{"pollen":"name", "warning": 10, "alert": 20[, "prediction": true]}, ...]'
                 ],
@@ -39,23 +62,10 @@ class PolenController
         }
         
         foreach ($datas as $data) {
-            if (
-                !array_key_exists('pollen', $data) ||
-                !array_key_exists('warning', $data) ||
-                !array_key_exists('alert', $data)
-            ) {
-                return new JsonResponse(
-                    [
-                        'message' => 'The data must follow the format : [{"pollen":"name", "warning": 10, "alert": 20[, "prediction": true]}, ...]'
-                    ],
-                    400
-                );
-            }
-            
             $polen = $this->registry->getRepository(PolenDocument::class)->findOneByName($data['pollen']);
             
             if (!$polen) {
-                return new JsonResponse(
+                return new CrossJsonResponse(
                     [
                         'message' => sprintf('Pollen "%s" not found', $data['pollen'])
                     ],
@@ -63,20 +73,27 @@ class PolenController
                 );
             }
             
-            $polen->setWarning((int)$data['warning']);
-            $polen->setAlert((int)$data['alert']);
-            
+            if (array_key_exists('warning', $data)) {
+                $polen->setWarning((int)$data['warning']);
+            }
+            if (array_key_exists('alert', $data)) {
+                $polen->setWarning((int)$data['alert']);
+            }
             if (array_key_exists('prediction', $data)) {
                 $polen->setPredictive((bool)$data['prediction']);
+            }
+            if (array_key_exists('image', $data)) {
+                $polen->setImageUrl((string)$data['image']);
             }
         }
         
         $this->registry->getManager()->flush();
         
-        return new JsonResponse(
+        return new CrossJsonResponse(
             [
                 'message' => 'success'
-            ]
+            ],
+            200
         );
     }
     
@@ -89,7 +106,7 @@ class PolenController
             $dataLoader->insertData(json_decode($request->getContent(), true));
         } catch (\Exception $e) {
             $this->logger->debug('Process failed', ['error' => $e]);
-            return new JsonResponse(
+            return new CrossJsonResponse(
                 [
                     'message' => $e->getMessage()
                 ],
@@ -97,10 +114,11 @@ class PolenController
             );
         }
         
-        return new JsonResponse(
+        return new CrossJsonResponse(
             [
                 'message' => 'success'
-            ]
+            ],
+            200
         );
     }
     
@@ -129,64 +147,12 @@ class PolenController
                 'range' => $range,
                 'history' => $history,
                 'warning' => $polen->getWarning(),
-                'alert' => $polen->getAlert()
+                'alert' => $polen->getAlert(),
+                'image' => $polen->getImageUrl()
             ];
         }
         
-        return new JsonResponse($result);
-    }
-    
-    public function history(Request $request)
-    {
-        if (!$request->query->has('type')) {
-            return new JsonResponse(
-                [
-                    'message' => 'Type is required'
-                ],
-                400
-            );
-        }
-        
-        $type = $request->query->get('type');
-        $polen = $this->registry->getRepository(PolenDocument::class)->find($type);
-
-        if (!$polen) {
-            return new JsonResponse(
-                [
-                    'message' => 'Polen not found'
-                ],
-                404
-            );
-        }
-
-        try {
-            $start = $this->resolveDate($request->query->get('start', null));
-            $end = $this->resolveDate($request->query->get('end', null));
-        } catch (\Exception $e) {
-            return new JsonResponse(
-                [
-                    'message' => 'Incorrect date format (YYYY-mm-dd)'
-                ],
-                400
-            );
-        }
-        
-        $records = $this->registry->getRepository(PolenRecord::class)->findByPolenAndRange(
-            $polen,
-            $start,
-            $end
-        );
-        $results = [];
-        
-        foreach ($records as $record) {
-            $results[] = [
-                'id' => $record->getId(),
-                'concentration' => $record->getConcentration(),
-                'date' => $record->getRecordDate()
-            ];
-        }
-        
-        return new JsonResponse($results);
+        return new CrossJsonResponse($result, 200);
     }
     
     protected function resolveDate($date)
