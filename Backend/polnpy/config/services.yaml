@@ -16,12 +16,25 @@ services:
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
+    cache_purger:
+        class: App\Purger\CachePurger
+        arguments:
+            - "@doctrine_mongodb"
+            - "@app.cache.pool"
+        
+    cache_controller:
+        class: App\Controller\CacheController
+        arguments:
+            - "@cache_purger"
+        public: true
+        
     polen_controller:
         class: App\Controller\PolenController
         arguments:
             - "@doctrine_mongodb"
             - "@logger"
             - "@app.cache.pool"
+            - "@cache_purger"
         public: true
         
     history_controller:

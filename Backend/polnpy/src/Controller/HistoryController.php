@@ -81,7 +81,7 @@ class HistoryController
         }
         $data[] = $cacheKey;
         $keyStore->set($data);
-        $cache->expiresAfter(86400);
+        $keyStore->expiresAfter(86400);
         $this->cache->save($keyStore);
         
         $cache->set($results);
@@ -136,12 +136,22 @@ class HistoryController
         
         $type = $request->query->get('type');
         
-        $cacheKey = 'polen.history.' . $type;
+        $cacheKey = 'polen.history.' . $type . '.' . $request->query->get('start', '') . '.' . $request->query->get('end', '');
         $cache = $this->cache->getItem($cacheKey);
         
         if ($cache->isHit()) {
             return new CrossJsonResponse($cache->get());
         }
+        
+        $keyStore = $this->cache->getItem('date_overview');
+        $data = $keyStore->get();
+        if (!is_array($data)) {
+            $data = [];
+        }
+        $data[] = $cacheKey;
+        $keyStore->set($data);
+        $keyStore->expiresAfter(86400);
+        $this->cache->save($keyStore);
         
         $polen = $this->registry->getRepository(PolenDocument::class)->find($type);
         

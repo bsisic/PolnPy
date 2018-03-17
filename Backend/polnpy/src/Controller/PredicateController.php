@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
 use App\Document\PolenDocument;
 use Monolog\Logger;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class PredicateController
 {
@@ -18,10 +19,13 @@ class PredicateController
      */
     private $logger;
     
-    public function __construct(ManagerRegistry $manager, Logger $logger)
+    private $cache;
+    
+    public function __construct(ManagerRegistry $manager, Logger $logger, AdapterInterface $cache)
     {
         $this->registry = $manager;
         $this->logger = $logger;
+        $this->cache = $cache;
     }
 
     /**
@@ -44,11 +48,19 @@ class PredicateController
      */
     public function predict(Request $request)
     {
+        
         $pollenId = $request->query->get('pollen', null);
         if (!$pollenId) {
             return new CrossJsonResponse(
                 ['message' => 'pollen parameter is mandatory']
             );
+        }
+        
+        $cacheKey = 'predicate.' . $pollenId;
+        $cache = $this->cache->getItem($cacheKey);
+        
+        if ($cache->isHit()) {
+            return new CrossJsonResponse($cache->get());
         }
         
         /**
@@ -78,15 +90,31 @@ class PredicateController
         
         $lines = explode("\n", $process->getOutput());
         
+        $this->logger->debug('Prediction done', [$lines]);
+        
         while (count($lines) > 0 && !is_numeric($result = array_pop($lines)));
         
-        return new CrossJsonResponse(
-            [
-                'pollen_id' => $pollen->getId(),
-                'pollen' => $pollen->getName(),
-                'concentration' => (float)$result
-            ]
-        );
+        $keyStore = $this->cache->getItem('date_overview');
+        $data = $keyStore->get();
+        if (!is_array($data)) {
+            $data = [];
+        }
+        $data[] = $cacheKey;
+        $keyStore->set($data);
+        $keyStore->expiresAfter(86400);
+        $this->cache->save($keyStore);
+        
+        $result = [
+            'pollen_id' => $pollen->getId(),
+            'pollen' => $pollen->getName(),
+            'concentration' => (float)$result
+        ];
+        
+        $cache->set($result);
+        $cache->expiresAfter(3600);
+        $this->cache->save($cache);
+        
+        return new CrossJsonResponse($result);
     }
 }
 
