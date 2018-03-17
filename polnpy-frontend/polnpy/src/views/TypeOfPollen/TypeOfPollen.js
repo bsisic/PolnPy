@@ -10,7 +10,7 @@ class TypeOfPollen extends Component {
         this.checkPredict = this.checkPredict.bind(this)
     }
     componentWillMount(){
-    fetch('http://73a1ab61.ngrok.io/list')
+    fetch('http://82.223.27.78:81/list')
         .then((res)=>{
             return res.json()
         })

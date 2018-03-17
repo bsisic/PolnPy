@@ -17,18 +17,34 @@ class Dashboard extends Component {
         this.state = {
             value: false,
             date: new Date(),
-            histo_pollen: [],
-            pollen: []
+            histo_pollen: 0,
+            predict: {}
         }
+        this.getHisto = this.getHisto.bind(this);
+        this.getPredict = this.getPredict.bind(this);
     }
     componentWillMount(){
-        fetch('http://73a1ab61.ngrok.io/history?type=5aaca323861fc900151caba2&start=2018-03-14&end=2018-03-15')
+        this.getHisto();
+        this.getPredict();
+    }
+    getHisto(){
+        fetch('http://82.223.27.78:81/history?type=5aaca323861fc900151caba2&start=2018-03-14&end=2018-03-15')
         .then((res)=>{
             return res.json()
         })
         .then((res) => {
             this.setState({histo_pollen:res})
             console.log(this.state.histo_pollen)
+        })
+    }
+    getPredict(){
+        fetch('http://82.223.27.78:81/predict?pollen=5aaca323861fc900151caba2')
+        .then((res)=>{
+            return res.json()
+        })
+        .then((res) => {
+            this.setState({predict:res})
+            console.log(this.state.predict)
         })
     }
     render() {
@@ -62,7 +78,7 @@ class Dashboard extends Component {
                         color="#141414"/>
                       <VerticalBarSeriesCanvas
                         data={[
-                            {x: 'Betula', y:  6.187068}
+                            {x: 'Betula', y: 6}
                         ]}
                         color="#F5A623"/>
                     </XYPlot>
