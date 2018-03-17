@@ -40,7 +40,9 @@ class PolenRecordRepository extends DocumentRepository
             ->group()
                 ->field('_id')->expression('null')
                 ->field('max')->max('$recordDate')
-                ->field('min')->min('$recordDate');
+                ->field('min')->min('$recordDate')
+                ->field('max-concentration')->max('$concentration')
+                ->field('min-concentration')->min('$concentration');
         
         return $qb->execute()->getSingleResult();
     }

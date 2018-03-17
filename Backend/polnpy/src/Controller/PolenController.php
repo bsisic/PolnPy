@@ -182,14 +182,32 @@ class PolenController
      *  @SWG\Response(
      *      response=200,
      *      description="Returns the set of pollen information, with min and max dates of historical data"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=false,
+     *      name="predicate",
+     *      in="query",
+     *      type="boolean",
+     *      description="Only return enabled predication"
      *  )
      * )
      * @return \App\Response\CrossJsonResponse
      */
-    public function listPolens()
+    public function listPolens(Request $request)
     {
         $polenList = $this->registry->getRepository(PolenDocument::class)->findAll();
         
+        if ($request->query->has('predicate') && (bool)$request->query->get('predicate')) {
+            $polenList = array_filter($polenList, function(PolenDocument $pollen){
+                if ($pollen->getPredictive()) {
+                    return $pollen;
+                }
+                return false;
+            });
+            
+            $polenList = array_filter($polenList);
+        }
+
         $result = [];
         foreach ($polenList as $polen) {
             $info = $this->registry->getRepository(PolenRecord::class)->findInfoForPolen($polen);
@@ -199,7 +217,9 @@ class PolenController
             if ($info) {
                 $range = [
                     'min' => $info['max']->toDateTime(),
-                    'max' => $info['max']->toDateTime()
+                    'max' => $info['max']->toDateTime(),
+                    'max-concentration' => $info['max-concentration'],
+                    'min-concentration' => $info['min-concentration']
                 ];
                 $history = true;
             }

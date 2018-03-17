@@ -36,6 +36,11 @@ services:
             - "@doctrine_mongodb"
             - "@logger"
         public: true
+        
+    db_load_command:
+        class: App\Command\DBLoaderCommand
+        tags:
+            - { name: 'console.command', command: 'app:db:load' }
     
     create_user_command:
         class: App\Command\UserCreationCommand
