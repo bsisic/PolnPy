@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
 use Monolog\Logger;
 use App\Response\CrossJsonResponse;
+use Swagger\Annotations as SWG;
 
 class HistoryController
 {
@@ -23,6 +24,38 @@ class HistoryController
         $this->logger = $logger;
     }
     
+    /**
+     * @SWG\Get(
+     *  summary="Get history of pollen concentration",
+     *  produces={"application/json"},
+     *  @SWG\Response(
+     *      response=200,
+     *      description="Returns the set of pollen concentration for specified type"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=true,
+     *      name="type",
+     *      in="query",
+     *      type="string",
+     *      description="The pollen id"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=false,
+     *      name="start",
+     *      in="query",
+     *      type="string",
+     *      description="The data starting date in format YYYY-MM-DD"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=false,
+     *      name="end",
+     *      in="query",
+     *      type="string",
+     *      description="The data ending date in format YYYY-MM-DD"
+     *  )
+     * )
+     * @return \App\Response\CrossJsonResponse
+     */
     public function history(Request $request)
     {
         if (!$request->query->has('type')) {

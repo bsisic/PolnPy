@@ -8,6 +8,7 @@ use App\Document\PolenDocument;
 use App\Loader\DataLoader;
 use Monolog\Logger;
 use App\Response\CrossJsonResponse;
+use Swagger\Annotations as SWG;
 
 class PolenController
 {
@@ -24,6 +25,24 @@ class PolenController
         $this->logger = $logger;
     }
     
+    /**
+     * @SWG\Get(
+     *  summary="Get each pollen concentration in a day",
+     *  produces={"application/json"},
+     *  @SWG\Response(
+     *      response=200,
+     *      description="Returns the set of pollen concentration for specified date"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=true,
+     *      name="date",
+     *      in="query",
+     *      type="string",
+     *      description="The data starting date in format YYYY-MM-DD"
+     *  )
+     * )
+     * @return \App\Response\CrossJsonResponse
+     */
     public function dateOverview(Request $request)
     {
         $date = $request->query->get('date', date('Y-m-d'));
@@ -47,6 +66,53 @@ class PolenController
         return new CrossJsonResponse($results, 200);
     }
  
+    /**
+     * @SWG\Post(
+     *  summary="Update a pollen definition",
+     *  description="Will update a set of pollen. The given body must follow the format : [{pollen:name, warning: 10, alert: 20[, prediction: true]}, ...]",
+     *  produces={"application/json"},
+     *  @SWG\Response(
+     *      response=200,
+     *      description="Returns the updated elements"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=true,
+     *      name="pollen",
+     *      in="query",
+     *      type="string",
+     *      description="The pollen name what should be updated"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=false,
+     *      name="warning",
+     *      in="query",
+     *      type="integer",
+     *      description="The pollen warning level"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=false,
+     *      name="alert",
+     *      in="query",
+     *      type="integer",
+     *      description="The pollen alert level"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=false,
+     *      name="prediction",
+     *      in="query",
+     *      type="boolean",
+     *      description="The pollen prediction capability"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=false,
+     *      name="image",
+     *      in="query",
+     *      type="integer",
+     *      description="The pollen image url"
+     *  )
+     * )
+     * @return \App\Response\CrossJsonResponse
+     */
     public function updateLevel(Request $request)
     {
         $this->logger->debug('Starting update level');
@@ -61,6 +127,7 @@ class PolenController
             );
         }
         
+        $result = [];
         foreach ($datas as $data) {
             $polen = $this->registry->getRepository(PolenDocument::class)->findOneByName($data['pollen']);
             
@@ -85,18 +152,33 @@ class PolenController
             if (array_key_exists('image', $data)) {
                 $polen->setImageUrl((string)$data['image']);
             }
+            
+            $result[] = [
+                'id' => $polen->getId(),
+                'name' => $polen->getName(),
+                'isPredictive' => $polen->getPredictive(),
+                'warning' => $polen->getWarning(),
+                'alert' => $polen->getAlert(),
+                'image' => $polen->getImageUrl()
+            ];
         }
         
         $this->registry->getManager()->flush();
         
-        return new CrossJsonResponse(
-            [
-                'message' => 'success'
-            ],
-            200
-        );
+        return new CrossJsonResponse($result, 200);
     }
     
+    /**
+     * @SWG\Post(
+     *  summary="Insert data",
+     *  produces={"application/json"},
+     *  @SWG\Response(
+     *      response=200,
+     *      description="Insert a set of data in format {pollens:[{type:"", data_points:[{date:YYYY-MM-DD, value: 0}, ...]}, ...]}"
+     *  )
+     * )
+     * @return \App\Response\CrossJsonResponse
+     */
     public function insertData(Request $request)
     {
         $dataLoader = new DataLoader($this->registry, $this->logger);
@@ -122,6 +204,17 @@ class PolenController
         );
     }
     
+    /**
+     * @SWG\Get(
+     *  summary="Get each pollen informations",
+     *  produces={"application/json"},
+     *  @SWG\Response(
+     *      response=200,
+     *      description="Returns the set of pollen information, with min and max dates of historical data"
+     *  )
+     * )
+     * @return \App\Response\CrossJsonResponse
+     */
     public function listPolens()
     {
         $polenList = $this->registry->getRepository(PolenDocument::class)->findAll();

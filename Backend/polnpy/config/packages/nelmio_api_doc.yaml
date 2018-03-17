@@ -1,0 +1,9 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: PolnPy
+            description: The pollen control API
+            version: 1.0.0
+    routes: # to filter documented routes
+        path_patterns:
+            - ^/(?!_).+ # Accepts routes under /api except /api/doc
