@@ -7,9 +7,6 @@ networks:
         driver: bridge
         internal: true
 
-volumes:
-    mongo_data:
-
 services:
 #    polnpy_front:
 #        image: apache
@@ -28,11 +25,10 @@ services:
             - mongo
     
     mongo:
-        image: mongo
+        image: matthieu88160/polnpymongo
+        # image: mongo
         networks:
             - internal
-        volumes:
-            - mongo_data:/data/db
 
     redis:
         image: redis
