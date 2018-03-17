@@ -4,7 +4,6 @@ scrap/*.csv
 wrangle/*.json
 analyze/PlayGround.*
 analyze/*.csv
-train/
 expose/
 */*.csv
 */.ipynb*
