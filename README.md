@@ -59,9 +59,9 @@ Libraries used:
 What:
 
 Train and test a couple of models
-- Random Forest Regressor?
-- One more, Support Vector Regressor?
+- Random Forest Regressor
 - LSTM?
+- Prophet?
 
 Libraries used:
 - Pandas https://pandas.pydata.org/
@@ -69,6 +69,10 @@ Libraries used:
 - TensorFlow? https://www.tensorflow.org/
 - Keras? https://keras.io/
 - Prophet? https://facebook.github.io/prophet/
+
+`jupyter notebook PolnPyRandomForest.ipynb` and run through all steps
+[Dirty solution to be refactored...]
+The same day forecast (`weather_today.csv`), the model (`RFR_model.sav`) and the `consume_model.py` script will be used by the backend
 
 ## Expose
 
