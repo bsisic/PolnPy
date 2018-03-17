@@ -34,3 +34,15 @@ WORKDIR /var/www/html/chronos
 RUN composer install --no-dev --optimize-autoloader 
 
 VOLUME ["/var/www/html/chronos/app/cache", "/var/www/html/chronos/app/log"]
+
+RUN apt-get install -y python3  python3-pip
+RUN pip3 install pandas scikit-learn scipy numpy
+
+RUN mkdir /usr/local/src/predict
+COPY Archive.zip /usr/local/src/predict/
+WORKDIR /usr/local/src/predict
+RUN unzip Archive.zip
+RUN rm Archive.zip
+
+WORKDIR /var/www/html
+

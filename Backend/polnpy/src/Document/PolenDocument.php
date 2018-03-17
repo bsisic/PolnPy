@@ -40,6 +40,11 @@ class PolenDocument
     private $imageUrl = '';
     
     /**
+     * @Mongo\Field(type="collection")
+     */
+    private $predictionArguments = [];
+    
+    /**
      * @return mixed
      */
     public function getId()
@@ -60,7 +65,7 @@ class PolenDocument
      */
     public function getPredictive()
     {
-        return $this->predictive;
+        return $this->predictive && !empty($this->getPredictionArguments());
     }
 
     /**
@@ -125,6 +130,22 @@ class PolenDocument
     public function setImageUrl($imageUrl)
     {
         $this->imageUrl = $imageUrl;
+    }
+    
+    /**
+     * @return multitype:
+     */
+    public function getPredictionArguments()
+    {
+        return $this->predictionArguments;
+    }
+
+    /**
+     * @param multitype: $predictionArguments
+     */
+    public function setPredictionArguments($predictionArguments)
+    {
+        $this->predictionArguments = $predictionArguments;
     }
 }
 
