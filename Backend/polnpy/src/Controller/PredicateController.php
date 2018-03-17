@@ -79,6 +79,8 @@ class PredicateController
             );
         }
         
+        chdir(dirname($pollen->getPredictionArguments()[1]));
+        
         $process = new Process($pollen->getPredictionArguments());
         
         $process->run();
