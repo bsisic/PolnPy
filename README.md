@@ -59,16 +59,16 @@ Libraries used:
 What:
 
 Train and test a couple of models
-- Random Forest Regressor
+- Random Forest Regressor, pretty interesting result!
+- Prophet, good result but the range between lower estimate and higher estimate is quite large
 - LSTM?
-- Prophet?
 
 Libraries used:
 - Pandas https://pandas.pydata.org/
 - Scikit Learn http://scikit-learn.org
+- Prophet https://facebook.github.io/prophet/
 - TensorFlow? https://www.tensorflow.org/
 - Keras? https://keras.io/
-- Prophet? https://facebook.github.io/prophet/
 
 `jupyter notebook PolnPyRandomForest.ipynb` and run through all steps
 [Dirty solution to be refactored...]
