@@ -52,6 +52,8 @@ Libraries used:
 - Pandas https://pandas.pydata.org/
 - Matplotlib https://matplotlib.org/
 
+`jupyter notebook PolnPyAnalysis.ipynb` and run all cells
+
 ## Train
 
 What:
@@ -66,7 +68,7 @@ Libraries used:
 - Scikit Learn http://scikit-learn.org
 - TensorFlow? https://www.tensorflow.org/
 - Keras? https://keras.io/
-- Prophet https://facebook.github.io/prophet/
+- Prophet? https://facebook.github.io/prophet/
 
 ## Expose
 
