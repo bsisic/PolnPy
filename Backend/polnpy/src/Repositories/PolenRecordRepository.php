@@ -7,6 +7,16 @@ use App\Document\PolenRecord;
 
 class PolenRecordRepository extends DocumentRepository
 {
+    public function findInRange($start, $end)
+    {
+        $qb = $this->createQueryBuilder(PolenRecord::class);
+        
+        $qb->field('recordDate')->gte($start);
+        $qb->field('recordDate')->lte($end);
+        
+        return $qb->getQuery()->execute();
+    }
+    
     public function findByPolenAndRange(PolenDocument $polen, $start, $end)
     {
         $qb = $this->createQueryBuilder(PolenRecord::class)

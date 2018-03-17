@@ -4,21 +4,25 @@
 
 history:
     path: /history
-    controller: polen_controller:history
-    methods: ['GET']
+    controller: history_controller:history
+    methods: ['GET', 'OPTIONS']
 
 list:
     path: /list
     controller: polen_controller:listPolens
-    methods: ['GET']
+    methods: ['GET', 'OPTIONS']
 
 insert:
     path: /insert
     controller: polen_controller:insertData
-    methods: ['POST']
+    methods: ['POST', 'OPTIONS']
 
 updateLevel:
     path: /level/update
     controller: polen_controller:updateLevel
-    methods: ['POST']
-    
+    methods: ['POST', 'OPTIONS']
+
+date_overview:
+    path: /date/overview
+    controller: polen_controller:dateOverview
+    methods: ['GET', 'OPTIONS']

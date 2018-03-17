@@ -30,7 +30,7 @@ class PolenRecord
     private $polen;
     
     /**
-     * @return mixed
+     * @return PolenDocument
      */
     public function getPolen()
     {
