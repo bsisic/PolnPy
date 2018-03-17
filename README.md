@@ -1,6 +1,6 @@
 PolnPy
 ======
-*I will try to update this README file from time to time during the GameOfCode hackathon*
+*We will try to update this README file from time to time during the GameOfCode hackathon*
 
 The idea: Get pollen historical data in Luxembourg and make pollen concentration  **predictions**
 
@@ -9,7 +9,7 @@ SWATEC (Scrape, Wrangle, Analyze, Train and then, Expose, Consume)
 ## Scrape
 
 What:
-- Srape data as neither API nor data set available
+- Scrape data as neither API nor data set available
 
 Data sources:
 - pollen.lu, 26+ years of data (since Jan 1, 1992)
@@ -47,6 +47,7 @@ Move the files from previous step in this directory and...
 What:
 - Discover and visualize data
 - Try to identify some correlations
+- Conclusion, it is very much a time series case (good candidate for Random Forest Regressor, FB Prophet, LSTM)
 
 Libraries used:
 - Pandas https://pandas.pydata.org/
@@ -71,13 +72,17 @@ Libraries used:
 - Keras https://keras.io/
 
 `jupyter notebook PolnPyRandomForest.ipynb` and run through all steps
+
 [Dirty solution to be refactored...]
+
 The same day forecast (`weather_today.csv`), the model (`RFR_model.sav`) and the `consume_model.py` script was tested in the backend
 
 `jupyter notebook PolnPyProphet.ipynb` and run through all steps to see the results
 
 `jupyter notebook PolnPyLSTM.ipynb` and run through all steps
+
 [Dirty solution to be refactored...]
+
 The same day forecast (`weather_today_for_LSTN.csv`), the model (`LSTM_model.h5`), the model json (`model.json`) and the `consume_LSTM_model.py` script will be used by the backend
 
 ## Expose
@@ -89,10 +94,12 @@ What:
 - One to make predictions for same day and next day (only ambrosia, betula and graminea)
 - And just a small helper to get the list of supported pollens
 
-
 Docker
+
 Symphony
+
 Redis
+
 MongoDB
 
 ## Consume
