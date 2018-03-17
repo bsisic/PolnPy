@@ -1,0 +1,8 @@
+.DS_Store
+READMEhelper.
+analyze/
+expose/
+wrangle/*.json
+*/*.csv
+scrap/*.csv
+*/.ipynb*
