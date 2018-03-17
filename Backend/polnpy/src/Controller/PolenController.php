@@ -9,6 +9,7 @@ use App\Loader\DataLoader;
 use Monolog\Logger;
 use App\Response\CrossJsonResponse;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class PolenController
 {
@@ -19,10 +20,13 @@ class PolenController
      */
     private $logger;
     
-    public function __construct(ManagerRegistry $manager, Logger $logger)
+    private $cache;
+    
+    public function __construct(ManagerRegistry $manager, Logger $logger, AdapterInterface $cache)
     {
         $this->registry = $manager;
         $this->logger = $logger;
+        $this->cache = $cache;
     }
  
     /**
@@ -82,6 +86,23 @@ class PolenController
      */
     public function updateLevel(Request $request)
     {
+        $this->cache->deleteItem('polen.list');
+        $this->cache->deleteItem('polen.list.predicate');
+        $polens = $this->registry->getRepository(PolenDocument::class)->findAll();
+        foreach ($polens as $polen) {
+            $this->cache->deleteItem('polen.history.'.$polen->getId());
+        }
+        $keyStore = $this->cache->getItem('date_overview');
+        $data = $keyStore->get();
+        if (!is_array($data)) {
+            $data = [];
+        }
+        foreach ($data as $key) {
+            $this->cache->deleteItem($key);
+        }
+        $keyStore->set([]);
+        $this->cache->save($keyStore);
+
         $this->logger->debug('Starting update level');
         
         $datas = json_decode($request->getContent(), true);
@@ -152,6 +173,23 @@ class PolenController
      */
     public function insertData(Request $request)
     {
+        $this->cache->deleteItem('polen.list');
+        $this->cache->deleteItem('polen.list.predicate');
+        $polens = $this->registry->getRepository(PolenDocument::class)->findAll();
+        foreach ($polens as $polen) {
+            $this->cache->deleteItem('polen.history.'.$polen->getId());
+        }
+        $keyStore = $this->cache->getItem('date_overview');
+        $data = $keyStore->get();
+        if (!is_array($data)) {
+            $data = [];
+        }
+        foreach ($data as $key) {
+            $this->cache->deleteItem($key);
+        }
+        $keyStore->set([]);
+        $this->cache->save($keyStore);
+
         $dataLoader = new DataLoader($this->registry, $this->logger);
         
         try {
@@ -182,24 +220,44 @@ class PolenController
      *  @SWG\Response(
      *      response=200,
      *      description="Returns the set of pollen information, with min and max dates of historical data"
+     *  ),
+     *  @SWG\Parameter(
+     *      required=false,
+     *      name="predicate",
+     *      in="query",
+     *      type="boolean",
+     *      description="Only return enabled predication"
      *  )
      * )
      * @return \App\Response\CrossJsonResponse
      */
-    public function listPolens()
+    public function listPolens(Request $request)
     {
-        $polenList = $this->registry->getRepository(PolenDocument::class)->findAll();
+        $withPredicate = $request->query->has('predicate') && (bool)$request->query->get('predicate');
+        $cacheKey = 'polen.list' . ($withPredicate ? '.predicate' : '');
+        $cache = $this->cache->getItem($cacheKey);
         
+        if ($cache->isHit()) {
+            return new CrossJsonResponse($cache->get());
+        }
+        
+        $polenList = $this->registry->getRepository(PolenDocument::class)->findAll();
+        $infos = $this->registry->getRepository(PolenRecord::class)->findInfoForPolen();
+
         $result = [];
         foreach ($polenList as $polen) {
-            $info = $this->registry->getRepository(PolenRecord::class)->findInfoForPolen($polen);
+            if ($request->query->has('predicate') && (bool)$request->query->get('predicate') && !$polen->getPredictive()) {
+                continue;
+            }
             $range = [];
             $history = false;
             
-            if ($info) {
+            if (isset($infos[$polen->getId()])) {
                 $range = [
-                    'min' => $info['max']->toDateTime(),
-                    'max' => $info['max']->toDateTime()
+                    'min' => $infos[$polen->getId()]['max']->toDateTime(),
+                    'max' => $infos[$polen->getId()]['max']->toDateTime(),
+                    'max-concentration' => $infos[$polen->getId()]['max-concentration'],
+                    'min-concentration' => $infos[$polen->getId()]['min-concentration']
                 ];
                 $history = true;
             }
@@ -215,6 +273,10 @@ class PolenController
                 'image' => $polen->getImageUrl()
             ];
         }
+        
+        $cache->set($result);
+        $cache->expiresAfter(3600);
+        $this->cache->save($cache);
         
         return new CrossJsonResponse($result, 200);
     }

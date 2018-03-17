@@ -10,7 +10,7 @@ class PolenRecordRepository extends DocumentRepository
     public function findInRange($start, $end)
     {
         $qb = $this->createQueryBuilder(PolenRecord::class);
-        
+        $qb->field('polen')->prime(true);
         $qb->field('recordDate')->gte($start);
         $qb->field('recordDate')->lte($end);
         
@@ -32,17 +32,23 @@ class PolenRecordRepository extends DocumentRepository
         return $qb->getQuery()->execute();
     }
     
-    public function findInfoForPolen(PolenDocument $polen)
+    public function findInfoForPolen()
     {
         $qb = $this->createAggregationBuilder()
-            ->match()
-                ->field('polen')->equals($polen)
             ->group()
-                ->field('_id')->expression('null')
+                ->field('_id')->expression('$polen')
                 ->field('max')->max('$recordDate')
-                ->field('min')->min('$recordDate');
+                ->field('min')->min('$recordDate')
+                ->field('max-concentration')->max('$concentration')
+                ->field('min-concentration')->min('$concentration');
         
-        return $qb->execute()->getSingleResult();
+        $results =  $qb->execute();
+        $returned = [];
+        foreach ($results as $result) {
+            $returned[(string)$result['_id']['$id']] = $result;
+        }
+        
+        return $returned;
     }
 }
 

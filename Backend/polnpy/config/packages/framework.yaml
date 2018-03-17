@@ -15,6 +15,14 @@ framework:
         log: true
 
     cache:
+        app: cache.adapter.redis
+        default_redis_provider: "redis://redis:6379"
+        pools:
+            app.cache.codification:
+                name: app.cache.pool # this will be the service's name
+                public: true # this will expose the pool as a service
+                adapter: cache.app
+                default_lifetime: 86400
         # Put the unique name of your app here: the prefix seed
         # is used to compute stable namespaces for cache keys.
         #prefix_seed: your_vendor_name/app_name

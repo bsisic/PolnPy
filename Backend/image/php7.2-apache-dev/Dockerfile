@@ -34,7 +34,7 @@ WORKDIR /var/www/html
 
 RUN useradd -p dl -s /bin/bash user
 
-RUN apt-get install -y python3 python3-pip
+RUN apt-get install -y python3 python3-pip mongodb-clients
 RUN pip3 install pandas scikit-learn scipy numpy
 
 RUN mkdir /usr/local/src/predict

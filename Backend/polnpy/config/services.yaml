@@ -21,6 +21,7 @@ services:
         arguments:
             - "@doctrine_mongodb"
             - "@logger"
+            - "@app.cache.pool"
         public: true
         
     history_controller:
@@ -36,6 +37,16 @@ services:
             - "@doctrine_mongodb"
             - "@logger"
         public: true
+        
+    db_load_command:
+        class: App\Command\DBLoaderCommand
+        tags:
+            - { name: 'console.command', command: 'app:db:load' }
+
+    db_dump_command:
+        class: App\Command\DBDumperCommand
+        tags:
+            - { name: 'console.command', command: 'app:db:dump' }
     
     create_user_command:
         class: App\Command\UserCreationCommand

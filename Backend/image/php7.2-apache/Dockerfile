@@ -19,23 +19,13 @@ RUN a2enmod rewrite
 RUN apt-get install -y libsodium-dev libicu-dev
 RUN docker-php-ext-install sodium opcache mbstring intl
 
-ENV APP_ENV=prod
-ENV APP_DEBUG=0
+VOLUME ["/var/www/html/app/cache", "/var/www/html/app/log"]
 
 WORKDIR /var/www/html
-RUN git clone https://github.com/kairosProject/chronos.git
-WORKDIR /usr/bin
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php -r "if (hash_file('SHA384', 'composer-setup.php') === '544e09ee996cdf60ece3804abc52599c22b1f40f4323403c44d44fdfdd586475ca9813a858088ffbc1f233e9b180f061') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-RUN php composer-setup.php
-RUN php -r "unlink('composer-setup.php');"
-RUN mv composer.phar composer
-WORKDIR /var/www/html/chronos
-RUN composer install --no-dev --optimize-autoloader 
 
-VOLUME ["/var/www/html/chronos/app/cache", "/var/www/html/chronos/app/log"]
+RUN useradd -p dl -s /bin/bash user
 
-RUN apt-get install -y python3  python3-pip
+RUN apt-get install -y python3 python3-pip mongodb-clients
 RUN pip3 install pandas scikit-learn scipy numpy
 
 RUN mkdir /usr/local/src/predict
@@ -45,4 +35,3 @@ RUN unzip Archive.zip
 RUN rm Archive.zip
 
 WORKDIR /var/www/html
-
