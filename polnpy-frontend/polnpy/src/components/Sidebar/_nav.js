@@ -8,6 +8,15 @@ export default {
         variant: 'info',
         text: ''
       }
+    },
+    {
+      name: 'Types of Pollen',
+      url: '/typeofpollen',
+      icon: 'icon-grid',
+      badge: {
+        variant: 'info',
+        text: ''
+      }
     }
   ]
 };
