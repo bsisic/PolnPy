@@ -81,7 +81,7 @@ class HistoryController
         }
         $data[] = $cacheKey;
         $keyStore->set($data);
-        $cache->expiresAfter(86400);
+        $keyStore->expiresAfter(86400);
         $this->cache->save($keyStore);
         
         $cache->set($results);

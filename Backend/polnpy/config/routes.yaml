@@ -31,3 +31,8 @@ predict:
     path: /predict
     controller: prediction_controller:predict
     methods: ['GET', 'OPTIONS']
+
+purge_cache:
+    path: /cache/purge
+    controller: cache_controller:purge
+    methods: ['POST', 'OPTIONS']

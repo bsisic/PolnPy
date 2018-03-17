@@ -10,6 +10,7 @@ use Monolog\Logger;
 use App\Response\CrossJsonResponse;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
+use App\Purger\CachePurger;
 
 class PolenController
 {
@@ -22,11 +23,14 @@ class PolenController
     
     private $cache;
     
-    public function __construct(ManagerRegistry $manager, Logger $logger, AdapterInterface $cache)
+    private $purger;
+    
+    public function __construct(ManagerRegistry $manager, Logger $logger, AdapterInterface $cache, CachePurger $purger)
     {
         $this->registry = $manager;
         $this->logger = $logger;
         $this->cache = $cache;
+        $this->purger = $purger;
     }
  
     /**
@@ -86,22 +90,7 @@ class PolenController
      */
     public function updateLevel(Request $request)
     {
-        $this->cache->deleteItem('polen.list');
-        $this->cache->deleteItem('polen.list.predicate');
-        $polens = $this->registry->getRepository(PolenDocument::class)->findAll();
-        foreach ($polens as $polen) {
-            $this->cache->deleteItem('polen.history.'.$polen->getId());
-        }
-        $keyStore = $this->cache->getItem('date_overview');
-        $data = $keyStore->get();
-        if (!is_array($data)) {
-            $data = [];
-        }
-        foreach ($data as $key) {
-            $this->cache->deleteItem($key);
-        }
-        $keyStore->set([]);
-        $this->cache->save($keyStore);
+        $this->purger->purge();
 
         $this->logger->debug('Starting update level');
         
@@ -173,22 +162,7 @@ class PolenController
      */
     public function insertData(Request $request)
     {
-        $this->cache->deleteItem('polen.list');
-        $this->cache->deleteItem('polen.list.predicate');
-        $polens = $this->registry->getRepository(PolenDocument::class)->findAll();
-        foreach ($polens as $polen) {
-            $this->cache->deleteItem('polen.history.'.$polen->getId());
-        }
-        $keyStore = $this->cache->getItem('date_overview');
-        $data = $keyStore->get();
-        if (!is_array($data)) {
-            $data = [];
-        }
-        foreach ($data as $key) {
-            $this->cache->deleteItem($key);
-        }
-        $keyStore->set([]);
-        $this->cache->save($keyStore);
+        $this->purger->purge();
 
         $dataLoader = new DataLoader($this->registry, $this->logger);
         

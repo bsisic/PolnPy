@@ -12,20 +12,20 @@ volumes:
 
 services:
     polnpy_api:
-        build: ../image/php7.2-apache-dev
+        build: ../../image/php7.2-apache
         env_file: 
-            - ../polnpy/.env
+            - ../../polnpy/.env
         ports:
             - 80:80
         networks:
             - internal
             - public
         environment:
-            - APP_ENV=1
-            - APP_DEBUG=1
+            - APP_ENV=prod
+            - APP_DEBUG=0
         volumes:
-            - ../tools/composer:/composer
-            - ../polnpy:/var/www/html
+            - ../../tools/composer:/composer
+            - ../../polnpy:/var/www/html
         depends_on:
             - mongo
     
