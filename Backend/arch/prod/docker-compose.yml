@@ -8,7 +8,8 @@ networks:
         internal: true
 
 volumes:
-    mongo_data:
+    polnpy_mongo_data:
+        external: true
 
 services:
     polnpy_api:
@@ -26,7 +27,7 @@ services:
         networks:
             - internal
         volumes:
-            - mongo_data:/data/db
+            - polnpy_mongo_data:/data/db
 
     redis:
         image: redis
