@@ -209,7 +209,7 @@ class PolenController
     {
         $withPredicate = $request->query->has('predicate') && (bool)$request->query->get('predicate');
         $cacheKey = md5('polen.list' . ($withPredicate ? '.predicate' : ''));
-        $cache = $this->cache->getItem($cacheKey);echo $withPredicate;
+        $cache = $this->cache->getItem($cacheKey);
 
         if ($cache->isHit()) {
             return new CrossJsonResponse($cache->get());
