@@ -50,12 +50,22 @@ class HistoryController
     {
         $date = $request->query->get('date', date('Y-m-d'));
         
-        $cacheKey = 'polen.date.overview' . $date;
+        $cacheKey = md5($date);
         $cache = $this->cache->getItem($cacheKey);
         
         if ($cache->isHit()) {
             return new CrossJsonResponse($cache->get());
         }
+        
+        $keyStore = $this->cache->getItem('key_store');
+        $data = $keyStore->get();
+        if (!is_array($data)) {
+            $data = [];
+        }
+        $data[] = $cacheKey;
+        $keyStore->set($data);
+        $keyStore->expiresAfter(86400);
+        $this->cache->save($keyStore);
         
         $startDateTime = \DateTime::createFromFormat('Y-m-d', $date);
         $startDateTime->setTime(0, 0, 0, 0);
@@ -73,16 +83,6 @@ class HistoryController
                 'polenId' => $record->getPolen()->getId()
             ];
         }
-        
-        $keyStore = $this->cache->getItem('date_overview');
-        $data = $keyStore->get();
-        if (!is_array($data)) {
-            $data = [];
-        }
-        $data[] = $cacheKey;
-        $keyStore->set($data);
-        $keyStore->expiresAfter(86400);
-        $this->cache->save($keyStore);
         
         $cache->set($results);
         $cache->expiresAfter(3600);
@@ -136,14 +136,14 @@ class HistoryController
         
         $type = $request->query->get('type');
         
-        $cacheKey = 'polen.history.' . $type . '.' . $request->query->get('start', '') . '.' . $request->query->get('end', '');
+        $cacheKey = md5($type . '.' . $request->query->get('start', '') . '.' . $request->query->get('end', ''));
         $cache = $this->cache->getItem($cacheKey);
         
         if ($cache->isHit()) {
             return new CrossJsonResponse($cache->get());
         }
         
-        $keyStore = $this->cache->getItem('date_overview');
+        $keyStore = $this->cache->getItem('key_store');
         $data = $keyStore->get();
         if (!is_array($data)) {
             $data = [];

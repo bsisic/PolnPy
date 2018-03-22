@@ -19,13 +19,7 @@ class CachePurger
     
     public function purge()
     {
-        $this->cache->deleteItem('polen.list');
-        $this->cache->deleteItem('polen.list.predicate');
-        $polens = $this->registry->getRepository(PolenDocument::class)->findAll();
-        foreach ($polens as $polen) {
-            $this->cache->deleteItem('polen.history.'.$polen->getId());
-        }
-        $keyStore = $this->cache->getItem('date_overview');
+        $keyStore = $this->cache->getItem('key_store');
         $data = $keyStore->get();
         if (!is_array($data)) {
             $data = [];

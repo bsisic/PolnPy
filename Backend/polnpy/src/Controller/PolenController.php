@@ -208,12 +208,22 @@ class PolenController
     public function listPolens(Request $request)
     {
         $withPredicate = $request->query->has('predicate') && (bool)$request->query->get('predicate');
-        $cacheKey = 'polen.list' . ($withPredicate ? '.predicate' : '');
-        $cache = $this->cache->getItem($cacheKey);
-        
+        $cacheKey = md5('polen.list' . ($withPredicate ? '.predicate' : ''));
+        $cache = $this->cache->getItem($cacheKey);echo $withPredicate;
+
         if ($cache->isHit()) {
             return new CrossJsonResponse($cache->get());
         }
+        
+        $keyStore = $this->cache->getItem('key_store');
+        $data = $keyStore->get();
+        if (!is_array($data)) {
+            $data = [];
+        }
+        $data[] = $cacheKey;
+        $keyStore->set($data);
+        $keyStore->expiresAfter(86400);
+        $this->cache->save($keyStore);
         
         $polenList = $this->registry->getRepository(PolenDocument::class)->findAll();
         $infos = $this->registry->getRepository(PolenRecord::class)->findInfoForPolen();

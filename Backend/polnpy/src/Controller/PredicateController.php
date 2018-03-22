@@ -56,12 +56,22 @@ class PredicateController
             );
         }
         
-        $cacheKey = 'predicate.' . $pollenId;
+        $cacheKey = md5($pollenId);
         $cache = $this->cache->getItem($cacheKey);
         
         if ($cache->isHit()) {
             return new CrossJsonResponse($cache->get());
         }
+        
+        $keyStore = $this->cache->getItem('key_store');
+        $data = $keyStore->get();
+        if (!is_array($data)) {
+            $data = [];
+        }
+        $data[] = $cacheKey;
+        $keyStore->set($data);
+        $keyStore->expiresAfter(86400);
+        $this->cache->save($keyStore);
         
         /**
          * @var PolenDocument $pollen
@@ -95,16 +105,6 @@ class PredicateController
         $this->logger->debug('Prediction done', [$lines]);
         
         while (count($lines) > 0 && !is_numeric($result = array_pop($lines)));
-        
-        $keyStore = $this->cache->getItem('date_overview');
-        $data = $keyStore->get();
-        if (!is_array($data)) {
-            $data = [];
-        }
-        $data[] = $cacheKey;
-        $keyStore->set($data);
-        $keyStore->expiresAfter(86400);
-        $this->cache->save($keyStore);
         
         $result = [
             'pollen_id' => $pollen->getId(),
