@@ -1,18 +1,15 @@
 FROM php:7.2-apache
 
 RUN apt-get update
-RUN apt-get install -y autoconf build-essential git zip unzip
+RUN apt-get install -y autoconf build-essential git zip unzip libsodium-dev libicu-dev python3 python3-pip mongodb-clients
 RUN pecl install mongodb
 RUN echo "extension=mongodb.so" >> /usr/local/etc/php/conf.d/mongodb.ini
 
+RUN docker-php-ext-install sodium opcache mbstring intl
+RUN pip3 install pandas scikit-learn scipy numpy keras tensorflow h5py
+
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite
-
-RUN apt-get install -y libsodium-dev libicu-dev
-RUN docker-php-ext-install sodium opcache mbstring intl
-
-RUN apt-get install -y python3 python3-pip mongodb-clients
-RUN pip3 install pandas scikit-learn scipy numpy keras tensorflow h5py
 
 RUN mkdir /usr/local/src/predict
 COPY Archive.zip /usr/local/src/predict/
@@ -32,3 +29,4 @@ RUN php -r "if (hash_file('SHA384', 'composer-setup.php') === '544e09ee996cdf60e
 RUN php composer-setup.php
 RUN php -r "unlink('composer-setup.php');"
 RUN php composer.phar install
+RUN rm composer.phar
